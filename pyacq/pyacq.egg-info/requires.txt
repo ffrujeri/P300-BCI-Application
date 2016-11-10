@@ -1,0 +1,4 @@
+numpy
+pyzmq
+msgpack-python
+blosc
