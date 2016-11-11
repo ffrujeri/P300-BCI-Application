@@ -124,7 +124,7 @@ class RealTimeElectroencephalography(QtCore.QObject):
     @QtCore.pyqtSlot(int)
     def on_new_epoch(self):
         stacked_chunk = self.sender()
-        if stacked_chunk.total_trig == self.epocher.stack_size:
+        if stacked_chunk.total_trig == self.epocher.allParams['stack_size']:
             new_epoch = stacked_chunk.stack.mean(axis=0)
             self.process_new_epoch(new_epoch)
             self.reset_epoching_stack()

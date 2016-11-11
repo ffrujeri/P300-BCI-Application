@@ -139,9 +139,9 @@ class DecisionMaker:
     def run(self, flash_matrix, communication):
         for i in range(0, Parameters.get_value("n_repetitions")):
             for seq in range(0, len(flash_matrix)):  # flash each row of matrix
-                print("DecisionMaker.run, inside loop, i = " + str(i) + ", seq = " + str(seq))
+                # print("DecisionMaker.run, inside loop, i = " + str(i) + ", seq = " + str(seq))
                 p = communication.get_probabilities()
-                print("DecisionMaker.run, p = " + str(p))
+                # print("DecisionMaker.run, p = " + str(p))
                 self.update_pdf(flash_matrix[seq], p) #FIXME
                 # self.update_pdf(seq, p)
                 # if not self.update_probabilities:
@@ -167,32 +167,45 @@ class DecisionMaker:
     def update_pdf(self, flashed_cards_indexes, lf):
         flashed_cards = [0] * self.number_of_cards
 
-        custom_print_in_blue('flashed_cards_indexes', flashed_cards_indexes)
-        print self.number_of_cards
+        custom_print_in_blue('prob {}\t diff = {}\tindexes {} '.format(lf, lf[1] - lf[0], flashed_cards_indexes))
 
         for i in range(0, len(flashed_cards_indexes)):
             flashed_cards[self.valid_cards_in_game.index(flashed_cards_indexes[i])] = 1
 #        custom_print_in_green(i)
 #FIXME
         #flashed_cards[flashed_cards_indexes] = 1
-        custom_print_in_blue('flashed_cards', flashed_cards, 'len:', len(flashed_cards))
+        # custom_print_in_blue('flashed_cards', flashed_cards, 'len:', len(flashed_cards))
 
         # print self.pdf
 
         # obs: p[0] - p[1]; pdf[i] > 0
-        log_p = [0]*self.number_of_cards
-        for i in range(0, self.number_of_cards):
-            if flashed_cards[i]:
-                log_p[i] = (lf[1] - lf[0]) / 10000. + (math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else self.epsilon)
+        # log_p = [0]*self.number_of_cards
+        # for i in range(0, self.number_of_cards):
+        #     if flashed_cards[i]:
+        #         log_p[i] = (lf[1] - lf[0]) + (math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else self.epsilon)
+        #     else:
+        #         log_p[i] = (math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else self.epsilon)
+        # max_log_p = max(log_p)
+        #
+        # exp_log_p = [math.exp(log_p[i] - max_log_p + 1.0) for i in range(self.number_of_cards)]
+        # sum_elp = sum(exp_log_p)
+        #
+        # self.pdf = [exp_log_p[i] / sum_elp for i in range(self.number_of_cards)]
+        # custom_print_in_blue('self.pdf', [round(pdf, 5) for pdf in self.pdf], numpy.sum(self.pdf))
+
+        delta = lf[1] - lf[0]
+        prior = 1. / 5
+        frac_prior = prior / float(1. - prior)
+        post = frac_prior * numpy.exp(delta) / (1 + frac_prior * numpy.exp(delta))
+
+        post_no_target = post + (1 - 2 * post)
+        post_target = 1 - post_no_target
+
+        for i in flashed_cards_indexes:
+            if post_target > 0.5:
+                self.pdf[self.valid_cards_in_game.index(i)] += 0.6
             else:
-                log_p[i] = (math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else self.epsilon)
-        max_log_p = max(log_p)
-
-        exp_log_p = [math.exp(log_p[i] - max_log_p + 1.0) for i in range(self.number_of_cards)]
-        sum_elp = sum(exp_log_p)
-
-        self.pdf = [exp_log_p[i] / sum_elp for i in range(self.number_of_cards)]
-        custom_print_in_blue('self.pdf', [round(pdf, 5) for pdf in self.pdf], numpy.sum(self.pdf))
+                self.pdf[self.valid_cards_in_game.index(i)] -= 0.9
 
     # ---------------------- private methods ----------------------
     def compute_entropy(self):
@@ -379,9 +392,9 @@ class OpenVibeCommunication:
 
     def get_probabilities(self):
         probabilities = self.translate_reply(self.subsocket.recv())
-        print
-        print '-----------ZMQ received', probabilities
-        print
+        # print
+        # print '-----------ZMQ received', probabilities
+        # print
         return probabilities
 
     def __del__(self):

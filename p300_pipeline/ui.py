@@ -54,8 +54,9 @@ class UserInterface(QtGui.QMainWindow, ui_qt_design.P300UI):
     @QtCore.pyqtSlot()
     def saved_p300_profile(self):
         raw_data_path = str(QtGui.QFileDialog.getExistingDirectory(
-            self, 'Select raw data directory for ' + self.user.id +
-                  ' (must be on raw_data directory) ../raw_data',
+            self,
+            'Select raw data directory for ' + self.user.id + ' (must be on raw_data directory)',
+            '../raw_data',
             QtGui.QFileDialog.ShowDirsOnly))
         self.user.fetch_profile(os.path.basename(raw_data_path))
         self.display_p300_curves()

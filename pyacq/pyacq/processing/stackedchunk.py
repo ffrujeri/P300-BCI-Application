@@ -85,8 +85,7 @@ class StackedChunkOnTrigger(ProcessingBase,):
                 self.recreate_stack()
             if param.name() in ['left_sweep', 'right_sweep']:
                 self.recreate_stack()
-    
-    
+
     def on_trigger(self, pos):
         socket = self.context.socket(zmq.SUB)
         socket.setsockopt(zmq.SUBSCRIBE,'')
