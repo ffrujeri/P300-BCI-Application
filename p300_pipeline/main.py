@@ -2,7 +2,7 @@ from oscilloscope import CustomOscilloscope
 from PyQt4 import QtGui
 from rte import RealTimeElectroencephalography
 import sys
-from ui import UserInterface
+from controller import Controller
 from user_profile import UserProfile
 
 
@@ -14,10 +14,10 @@ def test():
     profile_filenames = ['player1_2016_10_09_16_32',
                          'player1_2016_11_10_12_40',
                          'player1_2016_11_10_15_18']
-    print 'profile_filename,num_triggers,classifier,num_filters,accuracy,TP,FP,TN,FN,(TP/(TP+FP),TN/(TN+FN),TP/P,TN/N'
-    for profile_filename in profile_filenames:
-        user = UserProfile()
-        user.compute_profile(profile_filename)
+    # print 'profile_filename,num_triggers,classifier,num_filters,accuracy,TP,FP,TN,FN,(TP/(TP+FP),TN/(TN+FN),TP/P,TN/N'
+    # for profile_filename in profile_filenames:
+    user = UserProfile()
+    user.compute_profile(profile_filename)
     # user.save_profile_params_file(profile_filename)
 
     user2 = UserProfile()
@@ -27,15 +27,14 @@ def test():
 def main():
     app = QtGui.QApplication([])
 
-    user = UserProfile()
     rte = RealTimeElectroencephalography()
 
-    oscilloscope = CustomOscilloscope(title=user.id + rte.device_path, stream=rte.bandpass_filter.out_stream)
+    oscilloscope = CustomOscilloscope(title=rte.device_path,
+                                      stream=rte.bandpass_filter.out_stream)
     oscilloscope.show()
 
-    ui = UserInterface(rte, user)
+    ui = Controller(rte)
     ui.show()
-    # user.fetch_profile('player1_2016_10_09_16_32')
     # ui.display_p300_curves()
 
     sys.exit(app.exec_())

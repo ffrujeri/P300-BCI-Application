@@ -5,24 +5,23 @@ import pickle
 import quantities
 from scipy.linalg import toeplitz, qr, inv, svd
 import scipy.signal
-from sklearn import svm
 from termcolor import cprint
 import yaml
 
 
 class RawDataReader:
-    JSON_SUFFIX = 'info.json'
+    INFO_FILENAME = 'info.json'
     STREAMS_ID = 'streams'
     STREAM_TYPE_ID = 'stream_type'
     TRIGGERS_STREAM_ID = 'AsynchronusEventStream'  # typo intended
     ANALOG_SIGNAL_STREAM_ID = 'AnalogSignalSharedMemStream'
 
-    def __init__(self, raw_data_path):
-        self.raw_data_path = raw_data_path
+    def __init__(self, user_profile_path):
+        self.user_profile_path = user_profile_path
 
     def read_raw_data(self):
         """Reads data from info.json."""
-        info_path = os.path.join(self.raw_data_path, self.JSON_SUFFIX)
+        info_path = os.path.join(self.user_profile_path, self.INFO_FILENAME)
         info = yaml.safe_load(open(info_path))  # read strings as string objects
 
         eeg_signal = None
@@ -45,7 +44,7 @@ class RawDataReader:
     def _read_raw_signal(self, stream_info):
         if stream_info['name'] == '':
             raise RuntimeError('Raw signal data file not found.')
-        path = os.path.join(self.raw_data_path, stream_info['name']) + '.raw'
+        path = os.path.join(self.user_profile_path, stream_info['name']) + '.raw'
         reader = RawBinarySignalIO(path)
         segment = reader.read_segment(
             sampling_rate=stream_info['sampling_rate'] * quantities.kHz,
@@ -56,29 +55,28 @@ class RawDataReader:
         )
         sampling_frequency = (segment.analogsignals[0].sampling_rate.item())
         signal = np.array(segment.analogsignals)
-        cprint('Read raw signal from ' + path, 'magenta')
+        # cprint('Read raw signal from ' + path, 'blue')
         return EEGSignal(signal, sampling_frequency)
 
     def _read_triggers(self, stream_info):
         if stream_info['name'] == '':
             raise RuntimeError('Triggers raw data file not found.')
-        path = os.path.join(self.raw_data_path, stream_info['name']) + '.raw'
+        path = os.path.join(self.user_profile_path, stream_info['name']) + '.raw'
         triggers_dtype = [tuple(item) for item in stream_info['dtype']]
         triggers = np.memmap(filename=path, mode='r', dtype=triggers_dtype)
         labels = np.array(triggers['code']) == 2  # 1: non target; 2: target
         indexes = np.rint(np.array(triggers['pos'])) - 1
-        cprint('Read {} triggers from {}'.format(len(indexes), path), 'magenta')
+        # cprint('Read {} triggers from {}'.format(len(indexes), path), 'blue')
         return Triggers(labels, indexes)
 
 
 class EEGSignal:
-    EPOCH_DURATION = .875
-
     def __init__(self, raw_signals, sampling_frequency):
         self.raw_signals = raw_signals
         self.sampling_frequency = sampling_frequency
         self.num_channels = raw_signals.shape[0]
-        self.epoch_size = int(self.EPOCH_DURATION * self.sampling_frequency)
+        self.epoch_duration = 0
+        self.epoch_size = 0
 
         self.filtered_signals = None
         self.triggers = None
@@ -98,20 +96,25 @@ class EEGSignal:
             self.filtered_signals[index] = scipy.signal.lfilter(
                 butter_filter[0], butter_filter[1], signal)
 
-    def apply_spatial_filters(self):
+    def apply_spatial_filters(self, epoch_duration):
         sp = SpatialFilters(self.filtered_signals, self.triggers)
+        self.epoch_duration = epoch_duration
+        self.epoch_size = int(self.epoch_duration * self.sampling_frequency)
         sp.compute_spatial_filters(self.epoch_size)
         self.spatial_filters = sp.spatial_filters
         self.virtual_signals = self.spatial_filters.T.dot(self.filtered_signals)
 
-    def epoch_virtual_signal(self, triggers=None, remove_artifacts_flag=True):
+    def epoch_virtual_signal(self,
+                             triggers=None,
+                             remove_artifacts_flag=True):
         if triggers:
             self.triggers = triggers
         epoched_signals = list()
         for signal_channel in self.virtual_signals:
             epochs = list()
             for index in self.triggers.indexes:
-                epochs.append(signal_channel[index:(index + self.epoch_size)])
+                epochs.append(signal_channel[
+                              int(index):(int(index + self.epoch_size))])
             epoched_signals.append(epochs)
         self.epoched_signals = np.array(epoched_signals)
         if remove_artifacts_flag:  # remove artifacts and re-epoch
@@ -184,49 +187,6 @@ class SpatialFilters:
         return concatenated_epochs
 
 
-class Model:
-    def __init__(self, training_features=None, labels=None):
-        if training_features is None and labels is None:
-            training_features = []
-            labels = []
-
-        self.training_features = training_features
-        self.labels = labels
-
-        if len(training_features) != len(labels):
-            raise AssertionError(
-                'Training features and labels should have the same size!')
-
-        self.true_positives = self.false_positives = 0
-        self.true_negatives = self.false_negatives = 0
-
-        self.accuracy = None
-        self.spatial_filters = None
-        self.optimal_num_filters = None
-
-    def set_params(self, params_dict):
-        raise NotImplementedError
-
-    def set_w_xdawn_params(self, spatial_filters, optimal_num_filters):
-        self.spatial_filters = spatial_filters
-        self.optimal_num_filters = optimal_num_filters
-
-    def compute_params(self):
-        raise NotImplementedError
-
-    def compute_accuracy(self):
-        raise NotImplementedError
-
-    def compute_likelihoods(self, feature_vector):
-        raise NotImplementedError
-
-    def is_target(self, data):
-        raise NotImplementedError
-
-    def save_model_params_file(self, params_path):
-        raise NotImplementedError
-
-
 class NaiveBayesModel:
     def __init__(self, training_features=None, labels=None, prior=0.2):
         if training_features is None and labels is None:
@@ -265,7 +225,7 @@ class NaiveBayesModel:
         self.t2 = params_dict['t2']
 
         self.accuracy = params_dict['accuracy']
-        self.spatial_filters = params_dict['w_xdawn']
+        self.spatial_filters = params_dict['spatial_filters']
         self.optimal_num_filters = params_dict['optimal_num_filters']
 
     def set_w_xdawn_params(self, spatial_filters, optimal_num_filters):
@@ -346,53 +306,10 @@ class NaiveBayesModel:
             'v2': self.v2,
             't2': self.t2,
             'optimal_num_filters': self.optimal_num_filters,
-            'w_xdawn': self.spatial_filters,
+            'spatial_filters': self.spatial_filters,
             'accuracy': self.accuracy
         }
 
         output_file = open(params_path, 'w')
         pickle.dump(params_dict, output_file)
         output_file.close()
-
-
-class SVMModel:
-    def __init__(self, training_features=None, labels=None):
-        if training_features is None and labels is None:
-            training_features = []
-            labels = []
-
-        self.training_features = training_features
-        self.labels = labels
-
-        if len(training_features) != len(labels):
-            raise AssertionError(
-                'Training features and labels should have the same size!')
-
-        self.true_positives = self.false_positives = 0
-        self.true_negatives = self.false_negatives = 0
-
-        self.accuracy = None
-        self.spatial_filters = None
-        self.optimal_num_filters = None
-
-    def set_params(self, params_dict):
-        raise NotImplementedError
-
-    def set_w_xdawn_params(self, spatial_filters, optimal_num_filters):
-        self.spatial_filters = spatial_filters
-        self.optimal_num_filters = optimal_num_filters
-
-    def compute_params(self):
-        raise NotImplementedError
-
-    def compute_accuracy(self, test_set_ratio=0.1):
-        raise NotImplementedError
-
-    def compute_likelihoods(self, feature_vector):
-        raise NotImplementedError
-
-    def is_target(self, data):
-        raise NotImplementedError
-
-    def save_model_params_file(self, params_path):
-        raise NotImplementedError

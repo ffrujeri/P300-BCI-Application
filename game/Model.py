@@ -10,18 +10,13 @@ from random import shuffle
 from Tkinter import Scale
 from Tkinter import IntVar
 from xml.dom import minidom
+from termcolor import cprint
 
-from custom_termcolor import *
-# --------------------------------------------
-# --------------------------------------------
 class AI:
-    # ---------------------- parameters ----------------------
     a = 0
     memory_length = 1
     memory = []  # memory[i] is a pair [index, type] of a memorized card
     pair = None
-
-    # ---------------------- public interface methods ----------------------
 
     def __init__(self, difficulty):
         self.set_difficulty(difficulty)
@@ -59,8 +54,6 @@ class AI:
     def set_difficulty(self, difficulty):
         self.memory_length = difficulty
 
-    # ---------------------- private methods and classes ----------------------
-
     def _choose_random_unknown_card(self, index_array):
         # randomly choose a card which is still in the game and which is not in the memory
         indexes = index_array[:]
@@ -86,8 +79,6 @@ class AI:
             self.image = im
 
 
-# --------------------------------------------
-# --------------------------------------------
 class Calibrator:
     def __init__(self, ui):
         self.n_lines = Parameters.table_dimensions_calibration[0]
@@ -95,34 +86,32 @@ class Calibrator:
         self.n_cards = self.n_lines * self.n_columns
         self.ui = ui
         self.ui.draw_calibration_screen(self.n_lines, self.n_columns)
-        self.communication = OpenVibeCommunication()
+        self.communication = P300PipelineCommunication()
 
     def run(self, n_targets):
         cards_in_game = [i for i in range(0, self.n_cards)]
         for i in range(0, n_targets):
-            index = int(self.n_cards * random.random())
-            flash_matrix = Flasher.get_flash_matrix(cards_in_game, self.n_lines, self.n_columns, self.n_cards)
-            self.ui.target_card(index)
-            # pygame.time.wait(int(1000 * Parameters.get_value("time_show_target")))
-            self.ui.draw_clock("Focus on the\ntargeted card!",
-                               int(1000 * Parameters.get_value("time_show_target")))
-            self.ui.hide_card(index)
-            pygame.time.wait(int(1000 * Parameters.get_value("time_pause_before_target")))
-            for _ in range(Parameters.get_value("n_repetitions")):
-                for seq in range(0, len(flash_matrix)):
-                    self.communication.communicate_calibration_flash(index in flash_matrix[seq])
-                    self.ui.flash_cards(flash_matrix[seq])
-                    pygame.time.wait(Parameters.get_value("time_ms_flash"))
-                    self.ui.unflash_cards(flash_matrix[seq])
-                    pygame.time.wait(Parameters.get_value("time_ms_between_flashes"))
-            pygame.time.wait(int(1000 * Parameters.get_value("time_pause_after_target")))
-        self.ui.print_sidebar_message("The calibration\nis finished!")
+            target_index = int(self.n_cards * random.random())
+            self.ui.target_card(target_index)
+            self.ui.draw_clock('Focus on the\ntargeted card!',
+                               int(1000 * Parameters.get_value('time_show_target')))
+            self.ui.hide_card(target_index)
+            flash_matrix = Flasher.get_calibration_flash_matrix(
+                cards_in_game, Parameters.get_value('n_repetitions'),
+                self.n_lines, self.n_columns, self.n_cards,
+                target_index)
+            pygame.time.wait(int(1000 * Parameters.get_value('time_pause_before_target')))
+            for seq in range(0, len(flash_matrix)):
+                self.communication.communicate_calibration_flash(target_index in flash_matrix[seq])
+                self.ui.flash_cards(flash_matrix[seq])
+                pygame.time.wait(Parameters.get_value('time_ms_flash'))
+                self.ui.unflash_cards(flash_matrix[seq])
+                pygame.time.wait(Parameters.get_value('time_ms_between_flashes'))
+            pygame.time.wait(int(1000 * Parameters.get_value('time_pause_after_target')))
+        self.ui.print_sidebar_message('The calibration\nis finished!')
 
 
-# --------------------------------------------
-# --------------------------------------------
 class DecisionMaker:
-    # ---------------------- public interface methods ----------------------
     def __init__(self, threshold):
         self.number_of_cards = 0
         self.pdf = None
@@ -133,21 +122,22 @@ class DecisionMaker:
 
     def get_decision(self):
         decision = numpy.array(self.pdf).argmax()
-        custom_print_in_green('self.pdf', [round(pdf, 5) for pdf in self.pdf], numpy.sum(self.pdf), 'the decision is', decision)
+        cprint('self.pdf = {}\n{}\nthe decision is {}'.format(
+            [round(pdf, 5) for pdf in self.pdf], numpy.sum(self.pdf), decision),
+            'green')
         return decision
 
     def run(self, flash_matrix, communication):
-        for i in range(0, Parameters.get_value("n_repetitions")):
-            for seq in range(0, len(flash_matrix)):  # flash each row of matrix
-                # print("DecisionMaker.run, inside loop, i = " + str(i) + ", seq = " + str(seq))
-                p = communication.get_probabilities()
-                # print("DecisionMaker.run, p = " + str(p))
-                self.update_pdf(flash_matrix[seq], p) #FIXME
-                # self.update_pdf(seq, p)
-                # if not self.update_probabilities:
-                    # print("DecisionMaker.run, leaving on early stop")
-                    # return
-        print("DecisionMaker.run, leaving on flash finish")
+        for seq in range(0, len(flash_matrix)):  # flash each row of matrix
+            # print('DecisionMaker.run, inside loop, i = ' + str(i) + ', seq = ' + str(seq))
+            p = communication.get_probabilities()
+            # print('DecisionMaker.run, p = ' + str(p))
+            self.update_pdf(flash_matrix[seq], p)  # FIXME
+            # self.update_pdf(seq, p)
+            # if not self.update_probabilities:
+                # print('DecisionMaker.run, leaving on early stop')
+                # return
+        print('DecisionMaker.run, leaving on flash finish')
 
     def start_deciding(self, number_of_cards, flash_matrix, communication, valid_cards_in_game):
         self.number_of_cards = number_of_cards
@@ -167,59 +157,85 @@ class DecisionMaker:
     def update_pdf(self, flashed_cards_indexes, lf):
         flashed_cards = [0] * self.number_of_cards
 
-        custom_print_in_blue('prob {}\t diff = {}\tindexes {} '.format(lf, lf[1] - lf[0], flashed_cards_indexes))
-
         for i in range(0, len(flashed_cards_indexes)):
             flashed_cards[self.valid_cards_in_game.index(flashed_cards_indexes[i])] = 1
-#        custom_print_in_green(i)
-#FIXME
-        #flashed_cards[flashed_cards_indexes] = 1
-        # custom_print_in_blue('flashed_cards', flashed_cards, 'len:', len(flashed_cards))
 
-        # print self.pdf
+        exp_log_p = [math.exp(log_p[i] - max_log_p + 1.0) for i in range(self.number_of_cards)]
+        sum_elp = sum(exp_log_p)
 
-        # obs: p[0] - p[1]; pdf[i] > 0
-        # log_p = [0]*self.number_of_cards
-        # for i in range(0, self.number_of_cards):
-        #     if flashed_cards[i]:
-        #         log_p[i] = (lf[1] - lf[0]) + (math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else self.epsilon)
-        #     else:
-        #         log_p[i] = (math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else self.epsilon)
-        # max_log_p = max(log_p)
-        #
-        # exp_log_p = [math.exp(log_p[i] - max_log_p + 1.0) for i in range(self.number_of_cards)]
-        # sum_elp = sum(exp_log_p)
-        #
-        # self.pdf = [exp_log_p[i] / sum_elp for i in range(self.number_of_cards)]
-        # custom_print_in_blue('self.pdf', [round(pdf, 5) for pdf in self.pdf], numpy.sum(self.pdf))
-
-        delta = lf[1] - lf[0]
-        prior = 1. / 5
-        frac_prior = prior / float(1. - prior)
-        post = frac_prior * numpy.exp(delta) / (1 + frac_prior * numpy.exp(delta))
-
-        post_no_target = post + (1 - 2 * post)
-        post_target = 1 - post_no_target
+        self.pdf = [exp_log_p[i] / sum_elp for i in range(self.number_of_cards)]
 
         for i in flashed_cards_indexes:
-            if post_target > 0.5:
-                self.pdf[self.valid_cards_in_game.index(i)] += 0.6
+            if lf == 'True':
+                self.pdf[self.valid_cards_in_game.index(i)] += 0.4
             else:
-                self.pdf[self.valid_cards_in_game.index(i)] -= 0.9
+                self.pdf[self.valid_cards_in_game.index(i)] -= 0.84
 
-    # ---------------------- private methods ----------------------
     def compute_entropy(self):
         return sum([(-self.pdf[i] * math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else 0)
                     for i in range(len(self.pdf))])
 
 
-# --------------------------------------------
-# --------------------------------------------
 class Flasher:
-    # ---------------------- public interface methods ----------------------
-    # returns flash matrix - rows contain indexes of cards to flash
+    @staticmethod
+    def get_calibration_flash_matrix(cards_in_game, num_repetitions,
+                                     n_lines_cards, n_columns_cards, n_cards,
+                                     target_index, p300_ratio=0.3):
+
+        flash_matrix = Flasher.get_flash_matrix(
+            cards_in_game, n_lines_cards, n_columns_cards, n_cards)
+        total_flashes = len(flash_matrix) * num_repetitions
+
+        total_target_flashes = numpy.rint(total_flashes * p300_ratio)
+        total_non_target_flashes = numpy.rint(total_flashes * (1 - p300_ratio))
+
+        target_flashes = 0
+        non_target_flashes = 0
+        calibration_flash_matrix = []
+        while (target_flashes < total_target_flashes or
+                       non_target_flashes < total_non_target_flashes):
+            flash_matrix = Flasher.get_flash_matrix(
+                cards_in_game, n_lines_cards, n_columns_cards, n_cards)
+            for row in flash_matrix:
+                if target_index in row and target_flashes < total_target_flashes:
+                    calibration_flash_matrix.append(row)
+                    target_flashes += 1
+                elif target_index not in row and non_target_flashes < total_non_target_flashes:
+                    calibration_flash_matrix.append(row)
+                    non_target_flashes += 1
+
+        # print 'T={}, TT={}\nN={}, TN={}'.format(
+        #     target_flashes, total_target_flashes,
+        #     non_target_flashes, total_non_target_flashes)
+
+        has_consecutive_flashes = True
+        num_trials = 0
+        while has_consecutive_flashes:
+            num_trials += 1
+            random.shuffle(calibration_flash_matrix)
+            has_consecutive_flashes = False
+            for i in range(total_flashes - 1):
+                if target_index in calibration_flash_matrix[i]:
+                    if target_index in calibration_flash_matrix[i + 1]:
+                        has_consecutive_flashes = True
+                        break
+
+        return calibration_flash_matrix
+
+    @staticmethod
+    def get_game_flash_matrix(cards_in_game, num_repetitions,
+                              n_lines_cards, n_columns_cards, n_cards):
+        game_flash_matrix = []
+        for _ in range(num_repetitions):
+            flash_matrix = Flasher.get_flash_matrix(
+                cards_in_game, n_lines_cards, n_columns_cards, n_cards)
+            for row in flash_matrix:
+                game_flash_matrix.append(row)
+        return game_flash_matrix
+
     @staticmethod
     def get_flash_matrix(cards_in_game, n_lines_cards, n_columns_cards, n_cards):
+        """Returns flash matrix - rows contain indexes of cards to flash."""
         # create cards in game table
         cards_in_game_table = [[0 for x in range(n_columns_cards)] for x in range(n_lines_cards)]
         for i in range(len(cards_in_game)):
@@ -338,44 +354,15 @@ class Flasher:
         a = Flasher.cut(a, iteration, n_items)
         return a
 
+
 # --------------------------------------------
 # --------------------------------------------
-class OpenVibeCommunication:
-    # ---------------------- parameters ----------------------
-    # ---------------------- public interface methods ----------------------
-#    def __init__(self, ip='localhost', port='5555'):
-#        self.context = zmq.Context()
-#        self.socket = self.context.socket(zmq.PAIR)
-#        try:
-#            self.socket.connect('tcp://%s:%s' % (ip, port))
-#        except:
-#            print('Connection error')
-
-#    def communicate_game_flash(self):
-#        # send 1 when cards are flashed
-#        self.socket.send('1')
-
-#    def communicate_calibration_flash(self, target_flashed):
-#        # sends 1 if the target wasn't flashed and 2 otherwise
-#        self.socket.send('2' if target_flashed else '1')
-#        # return self.socket.recv()
-
-#    def get_probabilities(self):
-#        probabilities = self.translate_reply(self.socket.recv())
-#        return probabilities
-
-#    # used for test only: pre-defined probabilities for targets and
-#    # non-targets are read from file
-#    def get_probabilities(self, target_flashed):
-#        # TODO
-#        probabilities = self.translate_reply(self.socket.recv())
-#        return probabilities
+class P300PipelineCommunication:
     def __init__(self, ip='127.0.0.1', port_pub='5556', port_sub='6666'):
         self.context = zmq.Context()
         # self.socket = self.context.socket(zmq.PAIR)
         self.pubsocket = self.context.socket(zmq.PUB)
         self.pubsocket.bind('tcp://{}:{}'.format(ip, port_pub))
-
 
         self.subsocket = self.context.socket(zmq.SUB)
         self.subsocket.setsockopt(zmq.SUBSCRIBE,'') 
@@ -392,23 +379,17 @@ class OpenVibeCommunication:
 
     def get_probabilities(self):
         probabilities = self.translate_reply(self.subsocket.recv())
-        # print
-        # print '-----------ZMQ received', probabilities
-        # print
         return probabilities
 
     def __del__(self):
         self.pubsocket.close()
         self.subsocket.close()
-    # ---------------------- private methods ----------------------
+
     @staticmethod
     def translate_reply(reply):  # depends on the server response format
-        l = reply.split(' ')
-        return float(l[0]), float(l[1])
+        return reply
 
 
-# --------------------------------------------
-# --------------------------------------------
 class Game:
     def __init__(self, ui, player1_type_index, player2_type_index, difficulty, table_dimensions_index, theme_index,
                  threshold):
@@ -434,9 +415,9 @@ class Game:
     def game_result(self):
         compare = self.player1.points - self.player2.points
         if compare == 0:
-            self.ui.print_sidebar_message("\n  It's a draw!")
+            self.ui.print_sidebar_message('\n  It\'s a draw!')
         else:
-            self.ui.print_sidebar_message("\n Player " + ("1" if compare > 0 else "2") + " wins!")
+            self.ui.print_sidebar_message('\n Player ' + ('1' if compare > 0 else '2') + ' wins!')
 
     def make_set(self, theme_index):
         theme = Parameters.themes_prefix[theme_index]
@@ -459,7 +440,7 @@ class Game:
             self.first_card_index = index
             self.player1.update_memory(self.cards_in_game, [index, image])
             self.player2.update_memory(self.cards_in_game, [index, image])
-            pygame.time.wait(int(1000 * Parameters.get_value("time_result")))
+            pygame.time.wait(int(1000 * Parameters.get_value('time_result')))
             return
 
         equal_cards = (self.cards[index] == self.cards[self.first_card_index])
@@ -471,11 +452,10 @@ class Game:
             self.player2.points += (not self.player1_turn)
             self.player1.update_memory(self.cards_in_game, [index, image])
             self.player2.update_memory(self.cards_in_game, [index, image])
-            self.ui.print_sidebar_message("\n   Pair found!")
-            pygame.time.wait(int(1000 * Parameters.get_value("time_result")))
+            self.ui.print_sidebar_message('\n   Pair found!')
+            pygame.time.wait(int(1000 * Parameters.get_value('time_result')))
         else:  # if cards turned are different
-            # self.ui.print_sidebar_message("Tour du\n   joueur " + ("1" if not self.player1_turn else "2"))
-            pygame.time.wait(int(1000 * Parameters.get_value("time_result")))
+            pygame.time.wait(int(1000 * Parameters.get_value('time_result')))
             self.ui.hide_card(self.first_card_index)
             self.ui.hide_card(index)
             self.player1.update_memory(self.cards_in_game, [index, image])
@@ -483,16 +463,15 @@ class Game:
 
         self.ui.print_sidebar_message()
         self.player1_turn = ((not self.player1_turn) ^ equal_cards)
-        # self.ui.print_sidebar_message("Tour du\n     joueur " + ("1" if self.player1_turn else "2"))
         self.first_card_index = None
 
     def kill(self):
         self.cards = []
 
     def run(self):
-        print("Game.run() -- start!")
+        print('Game.run() -- start!')
 
-        self.ui.print_sidebar_message("\n Player 1 turn")
+        self.ui.print_sidebar_message('\n Player 1 turn')
         pygame.time.wait(1000)
         self.ui.print_sidebar_message()
 
@@ -510,33 +489,31 @@ class Game:
             self.game_result()
             self.play_again()
 
-        print("Game.run() -- end!")
+        print('Game.run() -- end!')
 
 
-# --------------------------------------------
-# --------------------------------------------
 class Parameters:
     # ---------------------- UI ----------------------
     # ui radio_buttons options
-    table_dimensions_options = [("8", 1), ("12", 2), ("16", 3), ("20", 4), ("24", 5), ("30", 6)]
-    theme_options = [("Asterix et Obelix", 1), ("Colors", 2), ("Disney", 3)]
-    player_type_options = [("AI", 1), ("EEG headset", 2), ("Mouse", 3)]
-    player_type = ["ai", "brain", "mouse"]
+    table_dimensions_options = [('8', 1), ('12', 2), ('16', 3), ('20', 4), ('24', 5), ('30', 6)]
+    theme_options = [('Asterix et Obelix', 1), ('Colors', 2), ('Disney', 3)]
+    player_type_options = [('AI', 1), ('EEG headset', 2), ('Mouse', 3)]
+    player_type = ['ai', 'brain', 'mouse']
 
     # cards
     card_size = 115
-    space_between_cards = dict([("8", 60), ("12", 60), ("16", 30), ("20", 30), ("24", 10), ("30", 10)])
+    space_between_cards = dict([('8', 60), ('12', 60), ('16', 30), ('20', 30), ('24', 10), ('30', 10)])
     table_dimensions = [[2, 4], [3, 4], [4, 4], [4, 5], [4, 6], [5, 6]]
     table_dimensions_calibration = [4, 5]
     sidebar_proportion = 30
     screen_data_center = 80
-    flashing_card = "img/flashing_card.gif"
-    hidden_card = "img/hidden_card.gif"
-    target_card = "img/target_card.gif"
-    themes_prefix = ["img/themes/Asterix et Obelix/", "img/themes/Colors/", "img/themes/Disney/"]
-    figures_names = ["img01.jpg", "img02.jpg", "img03.jpg", "img04.jpg", "img05.jpg", "img06.jpg", "img07.jpg",
-                     "img08.jpg", "img09.jpg", "img10.jpg", "img11.jpg", "img12.jpg", "img13.jpg", "img14.jpg",
-                     "img15.jpg"]
+    flashing_card = 'img/flashing_card.gif'
+    hidden_card = 'img/hidden_card.gif'
+    target_card = 'img/target_card.gif'
+    themes_prefix = ['img/themes/Asterix et Obelix/', 'img/themes/Colors/', 'img/themes/Disney/']
+    figures_names = ['img01.jpg', 'img02.jpg', 'img03.jpg', 'img04.jpg', 'img05.jpg', 'img06.jpg', 'img07.jpg',
+                     'img08.jpg', 'img09.jpg', 'img10.jpg', 'img11.jpg', 'img12.jpg', 'img13.jpg', 'img14.jpg',
+                     'img15.jpg']
 
     # ---------------------- settings values (ms) ----------------------
     values = {}
@@ -561,7 +538,7 @@ class Parameters:
 
         dictionary = {}
         for child in settings:
-            if "time" in child.tag and not ("time_ms" in child.tag):
+            if 'time' in child.tag and not ('time_ms' in child.tag):
                 dictionary[child.tag] = float((int(child.text)) / 1000.)
             else:
                 dictionary[child.tag] = int(child.text)
@@ -576,12 +553,12 @@ class Parameters:
         for key in Parameters.values:
             sub_element = ET.SubElement(settings, str(key))
             if (Parameters.values[key].__class__ is Scale) or (Parameters.values[key].__class__ is IntVar):
-                if "time" in key and not ("time_ms" in key):
+                if 'time' in key and not ('time_ms' in key):
                     text = str(int(Parameters.values[key].get() * 1000))
                 else:
                     text = str(int(Parameters.values[key].get()))
             else:
-                if "time" in key and not ("time_ms" in key):
+                if 'time' in key and not ('time_ms' in key):
                     text = str(int(Parameters.values[key] * 1000))
                 else:
                     text = str(int(Parameters.values[key]))
@@ -591,12 +568,10 @@ class Parameters:
         f = open(file_name, 'w')
         rough_string = ET.tostring(settings, 'utf-8')
         reparsed = minidom.parseString(rough_string)
-        f.write(reparsed.toprettyxml(indent="\t"))
+        f.write(reparsed.toprettyxml(indent='\t'))
         f.close()
 
 
-# --------------------------------------------
-# --------------------------------------------
 class Player:
     def __init__(self, player_type_index, difficulty, threshold, ui, n_lines_cards, n_columns_cards):
         self.type = Parameters.player_type[player_type_index - 1]
@@ -604,22 +579,22 @@ class Player:
         self.last_card_click = None
         self.n_lines_cards = n_lines_cards
         self.n_columns_cards = n_columns_cards
-        if self.type == "ai":
+        if self.type == 'ai':
             self.ai = AI(difficulty)
-        elif self.type == "brain":
+        elif self.type == 'brain':
             self.decision_maker = DecisionMaker(threshold)
             self.ui = ui
-            self.communication = OpenVibeCommunication()
+            self.communication = P300PipelineCommunication()
 
     def get_play(self, first_card_index, cards_in_game):
         is_first_card = first_card_index is None
-        if self.type == "ai":
+        if self.type == 'ai':
             pygame.time.wait(Parameters.ai_thinking_time)
             if is_first_card:
                 return self.ai.play_first_card(cards_in_game)
             else:
                 return self.ai.play_second_card(cards_in_game)
-        elif self.type == "brain":
+        elif self.type == 'brain':
             if is_first_card:
                 valid_cards_in_game = cards_in_game
                 n_cards = len(cards_in_game)
@@ -627,36 +602,29 @@ class Player:
                 valid_cards_in_game = cards_in_game[:]
                 valid_cards_in_game.remove(first_card_index)
                 n_cards = len(cards_in_game)-1
-            print "first_card_index = " + str(first_card_index)
-            print "cards_in_game = " + str(cards_in_game)
-            print "valid cards = " + str(valid_cards_in_game)
-            print "ncards = " + str(n_cards)
-            # pygame.time.wait(int(1000 * Parameters.get_value("time_thinking")))
-            self.ui.draw_clock("\n Get ready!", int(1000 * Parameters.get_value("time_thinking")))
-            flash_matrix = Flasher.get_flash_matrix(valid_cards_in_game, self.n_lines_cards, self.n_columns_cards, n_cards)
-            print "flash_matrix = " + str(flash_matrix)
+            print 'first_card_index = ' + str(first_card_index)
+            print 'cards_in_game = ' + str(cards_in_game)
+            print 'valid cards = ' + str(valid_cards_in_game)
+            print 'ncards = ' + str(n_cards)
+            # pygame.time.wait(int(1000 * Parameters.get_value('time_thinking')))
+            self.ui.draw_clock('\n Get ready!', int(1000 * Parameters.get_value('time_thinking')))
+            flash_matrix = Flasher.get_game_flash_matrix(
+                valid_cards_in_game, Parameters.get_value('n_repetitions'),
+                self.n_lines_cards, self.n_columns_cards, n_cards)
+            print 'flash_matrix = ' + str(flash_matrix)
             self.decision_maker.start_deciding(n_cards, flash_matrix, self.communication, valid_cards_in_game)
-            for i in range(0, Parameters.get_value("n_repetitions")):  # flash each row of matrix
-                for seq in range(0, len(flash_matrix)):
-                    self.communication.communicate_game_flash()
-                    self.ui.flash_cards(flash_matrix[seq])
-                    pygame.time.wait(Parameters.get_value("time_ms_flash"))
-                    self.ui.unflash_cards(flash_matrix[seq])
-                    pygame.time.wait(Parameters.get_value("time_ms_between_flashes"))
-###                    decision = self.decision_maker.get_decision()
-###                    print("Player.get_play, decision = " + str(decision))
-#                    if decision is not None: # early stop, use of threshold!
-#                        self.decision_maker.stop_deciding()
-#                    pygame.time.wait(int(1000 * Parameters.get_value("time_before_result")))
-#                    return decision
-###            print("Player.get_play, random decision!")
+            for seq in range(0, len(flash_matrix)):
+                self.communication.communicate_game_flash()
+                self.ui.flash_cards(flash_matrix[seq])
+                pygame.time.wait(Parameters.get_value('time_ms_flash'))
+                self.ui.unflash_cards(flash_matrix[seq])
+                pygame.time.wait(Parameters.get_value('time_ms_between_flashes'))
             self.decision_maker.stop_deciding()
-            pygame.time.wait(Parameters.get_value("time_ms_between_flashes"))
+            pygame.time.wait(Parameters.get_value('time_ms_between_flashes'))
             decision = self.decision_maker.get_decision()
-            print("Player.get_play, decision = " + str(decision))
-            pygame.time.wait(int(1000 * Parameters.get_value("time_before_result")))
+            print('Player.get_play, decision = ' + str(decision))
+            pygame.time.wait(int(1000 * Parameters.get_value('time_before_result')))
             return valid_cards_in_game[decision]
-###            return valid_cards_in_game[int(n_cards * random.random())]
         else:
             if is_first_card:
                 self.last_card_click = None
@@ -672,12 +640,10 @@ class Player:
         self.last_card_click = index
 
     def update_memory(self, index_array, card=None):
-        if self.type == "ai":
+        if self.type == 'ai':
             self.ai.update_memory(index_array, card)
 
 
-# --------------------------------------------
-# --------------------------------------------
 class SimulationDecisionMaker:
     # ---------------------- EEG data simulation (used to test DecisionMaker) ----------------------
     def __init__(self, ui):
@@ -695,7 +661,7 @@ class SimulationDecisionMaker:
             self.flash_matrix[i] = self.simulation_matrix.readline().split('\t')
             self.p_no_target[i] = [float(value) for value in self.simulation_no_target.readline().split('\t')]
             self.p_target[i] = [float(value) for value in self.simulation_target.readline().split('\t')]
-        print("All files read:")
+        print('All files read:')
         print(self.flash_matrix)
         print(self.p_no_target)
         print(self.p_target)
@@ -710,22 +676,22 @@ class SimulationDecisionMaker:
         self.decision_maker = DecisionMaker(Parameters.threshold)
 
     def get_flash_row(self, rip_row):  # returns indexes of flashed cards
-        flash_row = [1 if rip_row[i] == "TRUE" else 0 for i in range(0, len(rip_row))]
+        flash_row = [1 if rip_row[i] == 'TRUE' else 0 for i in range(0, len(rip_row))]
         flash_row_indexes = [0]*sum(flash_row)
         counter = 0
         for j in range(0, self.n_cards):
-            if rip_row[j] == "TRUE":
+            if rip_row[j] == 'TRUE':
                 flash_row_indexes[counter] = j
                 counter += 1
         return flash_row_indexes
 
     def simulate(self):
-        print("\n---------------------------------------------")
-        print("Expected decision\t\t\tObtained decision")
-        print("---------------------------------------------")
-        # print("----------------------------------------------------------------------")
-        # print("Expected decision\t\t\tObtained decision\t\t\t# flashes")
-        # print("----------------------------------------------------------------------")
+        print('\n---------------------------------------------')
+        print('Expected decision\t\t\tObtained decision')
+        print('---------------------------------------------')
+        # print('----------------------------------------------------------------------')
+        # print('Expected decision\t\t\tObtained decision\t\t\t# flashes')
+        # print('----------------------------------------------------------------------')
         for j in range(0, self.n_cards):
             self.decision_maker.start_deciding_simulation(self.n_cards)
             # n_flashes = 0
@@ -733,30 +699,18 @@ class SimulationDecisionMaker:
                 # flashed cards
                 rip_row = self.flash_matrix[i]
                 flash_row = self.get_flash_row(rip_row)
-                # self.ui.flash_cards(flash_row)
-                # pygame.time.wait(Parameters.values["time_ms_flash"]/10)
-                # self.ui.unflash_cards(flash_row)
-                # pygame.time.wait(Parameters.values["time_ms_between_flashes"]/20)
 
                 # probabilities
                 p = [0, 0]
-                p[0] = self.p_no_target[i][j]/10000
-                p[1] = self.p_target[i][j]/10000
+                p[0] = self.p_no_target[i][j] / 10000
+                p[1] = self.p_target[i][j] / 10000
 
                 # update decision_maker
                 self.decision_maker.update_pdf(flash_row, p)
-                # if self.decision_maker.get_decision() is not None:
-                #    n_flashes = i
-                #    break
-                # print(self.decision_maker.compute_entropy())
 
             decision = self.decision_maker.get_decision()
             if decision is not None:  # decision made!
-                print("\t" + str(j) + "\t\t\t\t\t\t\t\t" + str(decision))
-                # print("\t" + str(j) + "\t\t\t\t\t\t\t\t" + str(decision) + "\t\t\t\t\t\t" + str(n_flashes))
-                # print("\t" + str(j) + "\t\t\t\t\t\t\t\t" + str(decision) + "\t" + str(self.decision_maker.compute_entropy()))
+                print('\t' + str(j) + '\t\t\t\t\t\t\t\t' + str(decision))
             else:
-                print("\t" + str(j) + "\t\t\t\t\t\t\t\tNONE")
-                # print("\t" + str(j) + "\t\t\t\t\t\t\t\tNONE\t\t\t\t\t\t" + str(n_flashes))
-                # print("\t" + str(j) + "\t\t\t\t\t\t\t\tNONE\t" + str(self.decision_maker.compute_entropy()))
+                print('\t' + str(j) + '\t\t\t\t\t\t\t\tNONE')
         pygame.time.wait(5000)

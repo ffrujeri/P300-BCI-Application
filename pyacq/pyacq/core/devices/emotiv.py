@@ -179,7 +179,7 @@ class EmotivMultiSignals(DeviceBase):
         self.process = mp.Process(target = emotiv_mainLoop,  args=(self.stop_flag, self.streams, self.device_path, self.device_info['serial']) )
         self.process.start()
    
-        print 'FakeMultiAnalogChannel started:', self.name
+        print 'EmotivMultiAnalogChannel started:', self.name
         self.running = True
 
 
@@ -187,7 +187,7 @@ class EmotivMultiSignals(DeviceBase):
         self.stop_flag.value = 1
         self.process.join()
         
-        print 'FakeMultiAnalogChannel stopped:', self.name
+        print 'EmotivMultiAnalogChannel stopped:', self.name
         self.running = False
 
     def close(self):

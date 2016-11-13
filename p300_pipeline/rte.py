@@ -7,13 +7,15 @@ import os
 import pyacq
 from pyacq.processing import StackedChunkOnTrigger
 from PyQt4 import QtCore
+from shutil import copyfile
 from stimulator import StimulatorTriggersDevice, TriggersListenerThread
 from termcolor import cprint
 import zmq
 
 
 class RealTimeElectroencephalography(QtCore.QObject):
-    RAW_DATA_DIR = '../raw_data'
+    USER_PROFILE_DIR = '../user_profile/'
+    GAME_SETTINGS_PATH = '../game/settings.xml'
 
     def __init__(self):
         QtCore.QObject.__init__(self, None)
@@ -39,7 +41,8 @@ class RealTimeElectroencephalography(QtCore.QObject):
         self.pub.bind('tcp://127.0.0.1:6666')
 
         self.raw_data_recording_device = None
-        self.profile_filename = None
+        self.profile_filename = None  # TODO: remove?
+        self.profile_dir = None  # TODO: remove?
 
         self.triggers_listener_thread = None
         self.epocher = None
@@ -49,10 +52,14 @@ class RealTimeElectroencephalography(QtCore.QObject):
 
     @staticmethod
     def find_emotiv_device_path():
-        """Returns first emotiv path found. Raises IOError if no dongle is connected."""
-        devices = pyacq.EmotivMultiSignals.get_available_devices()  # list of connected devices (dongles)
+        """
+        Returns first emotiv path found.
+        Raises IOError if no dongle is connected.
+        """
+        devices = pyacq.EmotivMultiSignals.get_available_devices()
         if not devices.values():
-            raise IOError('No Emotiv EEG device found. Please check if dongle is connected.')
+            raise IOError('No Emotiv EEG device found. '
+                          'Please check if dongle is connected.')
         return devices.values()[0]['device_path']
 
     def start_watching_signal(self):
@@ -67,25 +74,33 @@ class RealTimeElectroencephalography(QtCore.QObject):
         self.stop_watching_signal()
         self.start_watching_signal()
         self.stimulator_triggers.start()
-        self.start_data_recording_device(user_id)
-        cprint('Started calibration protocol for ' + user_id, 'yellow')
+        self.make_profile_dir(user_id)
+        self.save_calibration_params()
+        self.start_data_recording_device()
 
     def stop_recording_calibration(self):
         self.raw_data_recording_device.stop()
         self.stimulator_triggers.stop()
         self.stop_watching_signal()
         self.start_watching_signal()
-        cprint('Stopped calibration protocol.', 'yellow')
 
-    def start_data_recording_device(self, user_id):
+    def make_profile_dir(self, user_id):
         date_string = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
         self.profile_filename = '{}_{}'.format(user_id, date_string)
-        raw_data_dir = os.path.join(self.RAW_DATA_DIR, self.profile_filename)
-        os.makedirs(raw_data_dir)
+        self.profile_dir = os.path.join(self.USER_PROFILE_DIR,
+                                        self.profile_filename)
+        os.makedirs(self.profile_dir)
+
+    def save_calibration_params(self):
+        calibration_settings_path = os.path.join(self.profile_dir,
+                                                 'settings.xml')
+        copyfile(self.GAME_SETTINGS_PATH, calibration_settings_path)
+
+    def start_data_recording_device(self):
         self.raw_data_recording_device = pyacq.RawDataRecording(
             [self.eeg_device.streams[0],
              self.stimulator_triggers.output_stream],
-            raw_data_dir)
+            self.profile_dir)
         self.raw_data_recording_device.start()
 
     def start_online_mode(self, user):
@@ -95,14 +110,12 @@ class RealTimeElectroencephalography(QtCore.QObject):
         self.start_watching_signal()
         self.stimulator_triggers.start()
         self.triggers_listener_thread.start()
-        cprint('Started online mode.', 'yellow')
 
     def stop_online_mode(self):  # TODO: check changed order
         self.triggers_listener_thread.stop()
         self.stimulator_triggers.stop()
         self.stop_watching_signal()
         self.start_watching_signal()
-        cprint('Stopped online mode.', 'yellow')
 
     def init_online_epoching(self):
         self.triggers_listener_thread = TriggersListenerThread(
@@ -130,13 +143,12 @@ class RealTimeElectroencephalography(QtCore.QObject):
             self.reset_epoching_stack()
 
     def process_new_epoch(self, new_epoch):  # TODO
-        cprint('RTE process_new_epoch new_erp size = ' +
-               str(numpy.size(new_epoch)), 'magenta', attrs=['bold'])  # 112 * 14 = 1568
-
-        lf1, lf2 = self.user.compute_likelihoods(new_epoch)
-        cprint('{} {}'.format(lf1, lf2), 'blue')
-        self.pub.send('{} {}'.format(lf1, lf2))
+        # cprint('RTE process_new_epoch new_erp size = {}'.format(
+        #     numpy.size(new_epoch)), 'blue', attrs=['bold'])  # 112*14 = 1568
+        label = self.user.compute_likelihoods(new_epoch)[0]
+        cprint('RTE process_new_epoch label = {}'.format(label), 'blue')
+        self.pub.send(str(label))
 
     def reset_epoching_stack(self):
-        cprint('RTE reset_epoching_stack', 'magenta', attrs=['bold'])
+        # cprint('RTE reset_epoching_stack', 'magenta', attrs=['bold'])
         self.epocher.reset_stack()
