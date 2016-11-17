@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<settings>
+	<time_pause_after_target>1000</time_pause_after_target>
+	<time_ms_between_flashes>175</time_ms_between_flashes>
+	<n_repetitions>5</n_repetitions>
+	<difficulty>5</difficulty>
+	<time_thinking>5000</time_thinking>
+	<n_cards>1</n_cards>
+	<time_ms_flash>125</time_ms_flash>
+	<flashing_type>1</flashing_type>
+	<time_result>1000</time_result>
+	<player2>1</player2>
+	<theme>1</theme>
+	<player1>1</player1>
+	<time_before_result>1000</time_before_result>
+	<n_targets>8</n_targets>
+	<time_show_target>1000</time_show_target>
+	<time_pause_before_target>1400</time_pause_before_target>
+</settings>
