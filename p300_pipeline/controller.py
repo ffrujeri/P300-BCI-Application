@@ -80,8 +80,8 @@ class Controller(QtGui.QMainWindow, ui_qt_design.P300UI):
 
     def display_p300_curves(self):  # TODO: check
         self.p300_plot_label.setText(
-            'Accuracy <b>{}%</b> ({} filter(s) used)'.format(
-                round(self.user.accuracy * 100), self.user.optimal_num_filters))
+            'F1-score <b>{}%</b> ({} filter(s) used)'.format(
+                round(self.user.f1_score * 100), self.user.optimal_num_filters))
         self.p300_plot_item.clear()
 
         target_color = (0, 0, 255)

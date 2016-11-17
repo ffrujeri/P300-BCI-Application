@@ -1,0 +1,65 @@
+{
+    "annotations": {
+        "rec_datetime": "2016-11-16T16:06:00.717220"
+    },
+    "pyacq_version": "0.1.0-dev",
+    "streams": [
+        {
+            "buffer_length": 1800.0,
+            "channel_indexes": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+            ],
+            "channel_names": [
+                "F3",
+                "F4",
+                "P7",
+                "FC6",
+                "F7",
+                "F8",
+                "T7",
+                "P8",
+                "FC5",
+                "AF4",
+                "T8",
+                "O2",
+                "O1",
+                "AF3"
+            ],
+            "dtype": "float32",
+            "name": "Emotiv Systems Pty Ltd #SN201404070041150",
+            "nb_channel": 14,
+            "packet_size": 1,
+            "port": 5837,
+            "sampling_rate": 128.0,
+            "stream_type": "AnalogSignalSharedMemStream"
+        },
+        {
+            "dtype": [
+                [
+                    "pos",
+                    "int64"
+                ],
+                [
+                    "code",
+                    "int64"
+                ]
+            ],
+            "name": "triggers_indexes",
+            "port": 5481,
+            "stream_type": "AsynchronusEventStream"
+        }
+    ]
+}

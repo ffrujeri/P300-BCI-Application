@@ -11,6 +11,8 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix
 import warnings
 
 
@@ -43,10 +45,9 @@ class UserProfile:
         self.accuracy = -1
         self.precision = -1
         self.recall = -1
+        self.f1_score = -1
         self.target_mean = self.non_target_mean = 0
         self.target_variance = self.non_target_variance = 0
-        self.true_positives = self.false_positives = 0
-        self.true_negatives = self.false_negatives = 0
 
     def fetch_profile(self, profile_filename):
         try:
@@ -77,10 +78,9 @@ class UserProfile:
     def compute_profile(self, profile_filename,
                         classifier_types=(ClassifierType.bernoulliNB, ClassifierType.gaussianNB, ClassifierType.lda),
                         epoch_duration=0.7,
-                        test_size=0.3,
                         num_filters=None,
-                        equal_labels_ratio=True,
-                        num_trials=3):  # TODO
+                        test_size=None,
+                        equal_labels_ratio=True):  # TODO
         self.epoch_duration = epoch_duration
 
         # read raw data (raw signal and triggers)
@@ -108,50 +108,28 @@ class UserProfile:
             max_filters = SpatialFilters.MAX_NUM_FILTERS + 1
         for classifier_type in classifier_types:
             for num_filters in range(min_filters, max_filters):
-                true_positives = false_positives = 0
-                true_negatives = false_negatives = 0
-                accuracy = []
-                for _ in range(num_trials):
-                    concatenated_epochs = SpatialFilters.concatenate_channels(
-                        eeg_signal.epoched_signals[:num_filters])
-                    X = concatenated_epochs
-                    y = eeg_signal.triggers.labels
-                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
-                    if equal_labels_ratio:
-                        X_train, y_train = self.truncate(X_train, y_train)
-                        X_test, y_test = self.truncate(X_test, y_test)
+                concatenated_epochs = SpatialFilters.concatenate_channels(eeg_signal.epoched_signals[:num_filters])
+                X = concatenated_epochs
+                y = eeg_signal.triggers.labels
+                if equal_labels_ratio:
+                    X, y = self.truncate(X, y)
+                clf = self.get_classifier(classifier_type)
+                f1_score = numpy.average(cross_val_score(clf, X, y, cv=5, scoring='f1'))
+                accuracy = numpy.average(cross_val_score(clf, X, y, cv=5, scoring='accuracy'))
+                precision = numpy.average(cross_val_score(clf, X, y, cv=5, scoring='average_precision'))
+                recall = numpy.average(cross_val_score(clf, X, y, cv=5, scoring='recall'))
 
-                    clf = self.compute_classifier(classifier_type, X_train, y_train)
-                    accuracy.append(clf.score(X_test, y_test))
-
-                    y_pred = clf.predict(X_test)
-                    true_positives += sum([y_test[i] == y_pred[i] and y_test[i]
-                                          for i in range(len(y_test))])
-                    true_negatives += sum([y_test[i] == y_pred[i] and not y_test[i]
-                                          for i in range(len(y_test))])
-                    false_positives += sum([y_test[i] != y_pred[i] and y_pred[i]
-                                           for i in range(len(y_test))])
-                    false_negatives += sum([y_test[i] != y_pred[i] and not y_pred[i]
-                                           for i in range(len(y_test))])
-
-                accuracy = 1. * sum(accuracy) / len(accuracy)
-                precision = 1. * true_positives / (true_positives + false_positives)
-                recall = 1. * true_positives / (true_positives + false_negatives)
-                current = precision * recall
+                current = f1_score
                 if current > current_best:
                     current_best = current
+                    self.f1_score = f1_score
                     self.accuracy = accuracy
                     self.precision = precision
                     self.recall = recall
                     self.optimal_num_filters = num_filters
                     self.classifier_type = classifier_type
-                    self.true_positives = true_positives
-                    self.true_negatives = true_negatives
-                    self.false_positives = false_positives
-                    self.false_negatives = false_negatives
 
-        concatenated_epochs = SpatialFilters.concatenate_channels(
-            eeg_signal.epoched_signals[:self.optimal_num_filters])
+        concatenated_epochs = SpatialFilters.concatenate_channels(eeg_signal.epoched_signals[:self.optimal_num_filters])
         X = concatenated_epochs
         y = eeg_signal.triggers.labels
         self.classifier = self.compute_classifier(self.classifier_type, X, y)
@@ -205,6 +183,28 @@ class UserProfile:
             warnings.warn('Invalid classifier type. Using default.')
             return svm.SVC(kernel='linear').fit(X_train, y_train)
 
+    @staticmethod
+    def get_classifier(classifier_type):
+        if classifier_type == ClassifierType.svm:
+            return svm.SVC(kernel='linear')
+        elif classifier_type == ClassifierType.gaussianNB:
+            return GaussianNB()
+        elif classifier_type == ClassifierType.bernoulliNB:
+            return BernoulliNB()
+        elif classifier_type == ClassifierType.lda:
+            return LinearDiscriminantAnalysis()
+        elif classifier_type == ClassifierType.qda:
+            return QuadraticDiscriminantAnalysis()
+        elif classifier_type == ClassifierType.knn:
+            return KNeighborsClassifier(n_neighbors=3)
+        elif classifier_type == ClassifierType.rf:
+            return RandomForestClassifier(n_estimators=2)
+        elif classifier_type == ClassifierType.mlp:
+            return MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 3), random_state=1)
+        else:
+            warnings.warn('Invalid classifier type. Using default.')
+            return BernoulliNB()
+
     def compute_means_and_variances(self, eeg_signal, triggers):
         training_features = SpatialFilters.concatenate_channels(
             eeg_signal.epoched_signals[:1])  # SpatialFilters.MAX_NUM_FILTERS
@@ -230,12 +230,10 @@ class UserProfile:
         cprint('> accuracy = {:.2f}'.format(self.accuracy * 100), 'yellow')
         cprint('> num_filters = {}'.format(self.optimal_num_filters), 'yellow')
         cprint('> precision = {}'.format(self.precision), 'yellow')
-        cprint('> P(p300 | label = p300) = recall = {}'.format(
-            1. * self.true_positives / (self.true_positives + self.false_positives)),
-            'yellow')
-        cprint('> P(not p300 | label = not p300) = {}'.format(
-            1. * self.true_negatives / (self.true_negatives + self.false_negatives)),
-            'yellow')
+        cprint('> P(p300 | label = p300) = {}'.format(self.precision), 'yellow')
+        aux = (1/self.recall - 1) / (1 / (1 - self.accuracy) * (1/self.precision + 1/self.recall + self.accuracy - 3))
+        nvp = 1 / (1 + aux)
+        cprint('> P(not p300 | label = not p300) = {}'.format(nvp), 'yellow')
 
     def compute_likelihoods(self, epoch):  # TODO: check
         spatial_filters = self.spatial_filters.transpose()[:self.optimal_num_filters, :]

@@ -5,20 +5,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="08105131-e488-4a53-849c-de5599643111" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/newfinal.iml" afterPath="$PROJECT_DIR$/.idea/newfinal.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_22/Emotiv Systems Pty Ltd #SN201404070041150.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_22/triggers_indexes.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_23/Emotiv Systems Pty Ltd #SN201404070041150.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_23/triggers_indexes.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_06/Emotiv Systems Pty Ltd #SN201404070041150.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_06/triggers_indexes.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_13/Emotiv Systems Pty Ltd #SN201404070041150.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_13/triggers_indexes.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/pedroteruel_2016_11_16_12_47/Emotiv Systems Pty Ltd #SN201404070041150.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/pedroteruel_2016_11_16_12_47/triggers_indexes.raw" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_22/info.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_22/settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_23/info.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_23/settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_23/user_profile.params" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_06/info.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_06/settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_06/user_profile.params" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_13/info.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_13/settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_16_13/user_profile.params" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/pedroteruel_2016_11_16_12_47/info.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/pedroteruel_2016_11_16_12_47/settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/user_profile/pedroteruel_2016_11_16_12_47/user_profile.params" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/Main.py" afterPath="$PROJECT_DIR$/game/Main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/Model.py" afterPath="$PROJECT_DIR$/game/Model.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/UI.py" afterPath="$PROJECT_DIR$/game/UI.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/settings.xml" afterPath="$PROJECT_DIR$/game/settings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/p300_pipeline/rte.py" afterPath="$PROJECT_DIR$/p300_pipeline/rte.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/p300_pipeline/tests.py" afterPath="$PROJECT_DIR$/p300_pipeline/tests.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/p300_pipeline/controller.py" afterPath="$PROJECT_DIR$/p300_pipeline/controller.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py" afterPath="$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/p300_pipeline/user_profile.py" afterPath="$PROJECT_DIR$/p300_pipeline/user_profile.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_12_15_13/user_profile.params" afterPath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_12_15_13/user_profile.params" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_12_16_54/user_profile.params" afterPath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_12_16_54/user_profile.params" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_13_11_25/user_profile.params" afterPath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_13_11_25/user_profile.params" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_13_20_31/user_profile.params" afterPath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_13_20_31/user_profile.params" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_15_16_29/user_profile.params" afterPath="$PROJECT_DIR$/user_profile/felipevieirafrujeri_2016_11_15_16_29/user_profile.params" />
     </list>
     <ignored path="newfinal.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -38,8 +55,8 @@
     <SUITE FILE_PATH="coverage/bci$main.coverage" NAME="main Coverage Results" MODIFIED="1479331687139" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
     <SUITE FILE_PATH="coverage/newfinal$eeg.coverage" NAME="eeg Coverage Results" MODIFIED="1478100201250" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300pipeline" />
     <SUITE FILE_PATH="coverage/P300-BCI-Application$main.coverage" NAME="main Coverage Results" MODIFIED="1479258476581" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
-    <SUITE FILE_PATH="coverage/bci$test_calibration_curves.coverage" NAME="test_calibration_curves Coverage Results" MODIFIED="1479346322350" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
     <SUITE FILE_PATH="coverage/bci$tests.coverage" NAME="tests Coverage Results" MODIFIED="1479384744143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
+    <SUITE FILE_PATH="coverage/bci$test_calibration_curves.coverage" NAME="test_calibration_curves Coverage Results" MODIFIED="1479412916997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
     <SUITE FILE_PATH="coverage/P300-BCI-Application$tests.coverage" NAME="tests Coverage Results" MODIFIED="1479069695336" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
     <SUITE FILE_PATH="coverage/newfinal$main.coverage" NAME="main Coverage Results" MODIFIED="1478387330864" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/p300_pipeline" />
     <SUITE FILE_PATH="coverage/newfinal$Main.coverage" NAME="Main Coverage Results" MODIFIED="1478387325061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/game" />
@@ -56,7 +73,7 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/p300_pipeline/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
+            <state relative-caret-position="0">
               <caret line="14" column="52" selection-start-line="14" selection-start-column="52" selection-end-line="14" selection-end-column="52" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
@@ -65,12 +82,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Model.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/game/Model.py">
+      <file leaf-file-name="controller.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/p300_pipeline/controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2898">
-              <caret line="174" column="69" selection-start-line="174" selection-start-column="69" selection-end-line="174" selection-end-column="69" />
-              <folding />
+            <state relative-caret-position="1147">
+              <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -78,17 +97,19 @@
       <file leaf-file-name="test_calibration_curves.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="1530">
+              <caret line="94" column="0" selection-start-line="94" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UI.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="UI.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/game/UI.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="841">
+            <state relative-caret-position="2970">
               <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
@@ -100,7 +121,7 @@
       <file leaf-file-name="tests.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/p300_pipeline/tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1183">
+            <state relative-caret-position="1530">
               <caret line="87" column="4" selection-start-line="87" selection-start-column="4" selection-end-line="87" selection-end-column="4" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
@@ -122,9 +143,11 @@
       <file leaf-file-name="user_profile.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/p300_pipeline/user_profile.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="326">
-              <caret line="58" column="19" selection-start-line="58" selection-start-column="19" selection-end-line="58" selection-end-column="19" />
-              <folding />
+            <state relative-caret-position="576">
+              <caret line="47" column="26" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -132,18 +155,8 @@
       <file leaf-file-name="user_profile_util.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/p300_pipeline/user_profile_util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5022">
-              <caret line="287" column="24" selection-start-line="287" selection-start-column="24" selection-end-line="287" selection-end-column="24" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="stimulator.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/p300_pipeline/stimulator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+            <state relative-caret-position="738">
+              <caret line="49" column="19" selection-start-line="49" selection-start-column="12" selection-end-line="49" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -202,6 +215,8 @@
         <option value="$PROJECT_DIR$/game/Model.py" />
         <option value="$PROJECT_DIR$/p300_pipeline/tests.py" />
         <option value="$PROJECT_DIR$/p300_pipeline/user_profile.py" />
+        <option value="$PROJECT_DIR$/p300_pipeline/controller.py" />
+        <option value="$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py" />
       </list>
     </option>
   </component>
@@ -242,6 +257,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -258,6 +274,52 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="user_profile" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="user_profile" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ericmuxagata_2016_11_16_15_22" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bci" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pyacq" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -291,7 +353,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -302,14 +363,14 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/user_profile" />
       <recent name="$PROJECT_DIR$/p300_pipeline" />
       <recent name="$PROJECT_DIR$/raw_data" />
       <recent name="$PROJECT_DIR$/raw_data2" />
       <recent name="$PROJECT_DIR$/game" />
-      <recent name="$PROJECT_DIR$/p300pipeline" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.tests">
+  <component name="RunManager" selected="Python.test_calibration_curves">
     <configuration default="false" name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -617,8 +678,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.tests" />
-        <item index="1" class="java.lang.String" itemvalue="Python.test_calibration_curves" />
+        <item index="0" class="java.lang.String" itemvalue="Python.test_calibration_curves" />
+        <item index="1" class="java.lang.String" itemvalue="Python.tests" />
         <item index="2" class="java.lang.String" itemvalue="Python.Main" />
         <item index="3" class="java.lang.String" itemvalue="Python.main" />
         <item index="4" class="java.lang.String" itemvalue="Python.eeg" />
@@ -636,6 +697,21 @@
       <option name="presentableId" value="Default" />
       <updated>1478016873438</updated>
     </task>
+    <task id="LOCAL-00001" summary="Menu button, compute_profile changes, tests">
+      <created>1479402951425</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1479402951425</updated>
+    </task>
+    <task id="LOCAL-00002" summary="User Profile">
+      <created>1479404216274</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1479404216274</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView" selected-index="4">
@@ -649,13 +725,12 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="2495" height="1576" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19318637" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3284477" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284477" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329683" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33710858" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32978016" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32948717" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3957362" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -668,6 +743,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2495114" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33710858" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -703,7 +779,9 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="Menu button, compute_profile changes, tests" />
+    <MESSAGE value="User Profile" />
+    <option name="LAST_COMMIT_MESSAGE" value="User Profile" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -722,15 +800,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/p300_pipeline/oscilloscope.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/p300_pipeline/ui.py" />
-    <entry file="file://$USER_HOME$/.PyCharm2016.2/system/python_stubs/-1247972723/gtk/_gtk/UIManager.py" />
     <entry file="file://$PROJECT_DIR$/util/custom_termcolor.py" />
     <entry file="file://$PROJECT_DIR$/pyacq/pyacq/gui/oscilloscope.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -843,14 +912,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/p300_pipeline/user_profile_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5022">
-          <caret line="287" column="24" selection-start-line="287" selection-start-column="24" selection-end-line="287" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/game/Model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2898">
@@ -859,12 +920,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/p300_pipeline/main.py">
+    <entry file="file://$PROJECT_DIR$/calibration_stats_felipevieirafrujeri_2016_11_15_16_29.csv">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="14" column="52" selection-start-line="14" selection-start-column="52" selection-end-line="14" selection-end-column="52" />
+        <state relative-caret-position="0">
+          <caret line="0" column="57" selection-start-line="0" selection-start-column="57" selection-end-line="0" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/game/UI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2970">
+          <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
           <folding>
-            <element signature="e#0#43#0" expanded="true" />
+            <element signature="e#0#21#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -877,25 +945,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/calibration_stats_felipevieirafrujeri_2016_11_15_16_29.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="57" selection-start-line="0" selection-start-column="57" selection-end-line="0" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/p300_pipeline/tests.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1183">
+        <state relative-caret-position="1530">
           <caret line="87" column="4" selection-start-line="87" selection-start-column="4" selection-end-line="87" selection-end-column="4" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
@@ -903,20 +955,66 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/p300_pipeline/user_profile.py">
+    <entry file="file://$PROJECT_DIR$/p300_pipeline/user_profile_util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="58" column="19" selection-start-line="58" selection-start-column="19" selection-end-line="58" selection-end-column="19" />
+        <state relative-caret-position="738">
+          <caret line="49" column="19" selection-start-line="49" selection-start-column="12" selection-end-line="49" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/game/UI.py">
+    <entry file="file://$PROJECT_DIR$/p300_pipeline/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="841">
-          <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
+        <state relative-caret-position="0">
+          <caret line="14" column="52" selection-start-line="14" selection-start-column="52" selection-end-line="14" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/p300_pipeline/user_profile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="576">
+          <caret line="47" column="26" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/p300_pipeline/test_calibration_curves.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1530">
+          <caret line="94" column="0" selection-start-line="94" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/user_profile/pedroteruel_2016_11_16_12_45/info.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/user_profile/ericmuxagata_2016_11_16_15_22/info.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="810">
+          <caret line="45" column="35" selection-start-line="45" selection-start-column="35" selection-end-line="45" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/p300_pipeline/controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1147">
+          <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
