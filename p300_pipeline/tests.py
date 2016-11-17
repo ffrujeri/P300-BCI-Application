@@ -32,56 +32,55 @@ def test_classifiers():
         'felipevieirafrujeri_2016_11_12_18_26'
     ]
 
+    profile_filenames = ['felipevieirafrujeri_2016_11_15_16_29']
     # TODO: print settings.xml too!
     # TODO: better select optimal model: num_filters, classifier_type, epoch_duration
-    output = open('../calibration_stats_unequal.csv', 'w')
+    output = open('../calibration_stats_' + profile_filenames[0] + '.csv', 'w')
     # helmet inverted if profile_filename = '{}_inv'
     output.write('profile_filename,helmet_positioning,num_epochs,classifier,'
                  'computing_time,' +
                  'epoch_duration,epoch_size,num_filters,test_size,'
                  'accuracy,targets,non_targets,' +
                  'TP,FP,TN,FN,(TP/(TP+FP),TN/(TN+FN),TP/(TP+FN),TN/(TN+FP)\n')
+
     for profile_filename in profile_filenames:
         helmet_inverted = '_inv' in profile_filename
-        for classifier_type in ClassifierType:
-            for epoch_duration in [0.600, 0.700, 0.875]:
-                for test_size in [0.2, 0.3]:
-                    for num_filters in range(1, SpatialFilters.MAX_NUM_FILTERS + 1):
-                        computing_time = time.time()
-                        user = UserProfile()
-                        user.compute_profile(profile_filename=profile_filename,
-                                             classifier_type=classifier_type,
-                                             epoch_duration=epoch_duration,
-                                             test_size=test_size,
-                                             num_filters=num_filters,
-                                             equal_labels_ratio=False)
-                        computing_time = time.time() - computing_time
-                        output.write(
-                            '{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(
-                                profile_filename,
-                                'inv' if helmet_inverted else 'normal',
-                                user.num_epochs,
-                                classifier_type,
-                                computing_time,
-                                user.epoch_duration,
-                                user.epoch_size,
-                                num_filters,
-                                test_size,
-                                user.accuracy,
-                                user.true_positives + user.false_negatives,
-                                user.true_negatives + user.false_positives,
-                                user.true_positives,
-                                user.false_positives,
-                                user.true_negatives,
-                                user.false_negatives,
-                                ratio(user.true_positives, user.false_positives),
-                                ratio(user.true_negatives, user.false_negatives),
-                                ratio(user.true_positives, user.false_negatives),
-                                ratio(user.true_negatives, user.false_positives)
-                            )
+        for epoch_duration in [0.6, 0.7, 0.8, 0.9, 1.0]:
+            for test_size in [0.3]:
+                for num_filters in range(1, SpatialFilters.MAX_NUM_FILTERS + 1):
+                    computing_time = time.time()
+                    user = UserProfile()
+                    user.compute_profile(profile_filename=profile_filename,
+                                         epoch_duration=epoch_duration,
+                                         test_size=test_size,
+                                         num_filters=num_filters,
+                                         equal_labels_ratio=False)
+                    computing_time = time.time() - computing_time
+                    output.write(
+                        '{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(
+                            profile_filename,
+                            'inv' if helmet_inverted else 'normal',
+                            user.num_epochs,
+                            user.classifier_type,
+                            computing_time,
+                            user.epoch_duration,
+                            user.epoch_size,
+                            num_filters,
+                            test_size,
+                            user.accuracy,
+                            user.true_positives + user.false_negatives,
+                            user.true_negatives + user.false_positives,
+                            user.true_positives,
+                            user.false_positives,
+                            user.true_negatives,
+                            user.false_negatives,
+                            ratio(user.true_positives, user.false_positives),
+                            ratio(user.true_negatives, user.false_negatives),
+                            ratio(user.true_positives, user.false_negatives),
+                            ratio(user.true_negatives, user.false_positives)
                         )
-            print 'Done with {} for {}.'.format(classifier_type,
-                                               profile_filename)
+                    )
+        print 'Done with {} for {}.'.format(user.classifier_type, profile_filename)
 
     output.close()
 

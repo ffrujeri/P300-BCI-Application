@@ -1,3 +1,4 @@
+from enum import Enum
 import math
 import numpy
 import pygame
@@ -11,6 +12,7 @@ from Tkinter import Scale
 from Tkinter import IntVar
 from xml.dom import minidom
 from termcolor import cprint
+
 
 class AI:
     a = 0
@@ -102,9 +104,15 @@ class Calibrator:
                 target_index)
             pygame.time.wait(int(1000 * Parameters.get_value('time_pause_before_target')))
             for seq in range(0, len(flash_matrix)):
+                if Parameters.return_to_menu:
+                    Parameters.return_to_menu = False
+                    return
                 self.communication.communicate_calibration_flash(target_index in flash_matrix[seq])
                 self.ui.flash_cards(flash_matrix[seq])
                 pygame.time.wait(Parameters.get_value('time_ms_flash'))
+                if Parameters.return_to_menu:
+                    Parameters.return_to_menu = False
+                    return
                 self.ui.unflash_cards(flash_matrix[seq])
                 pygame.time.wait(Parameters.get_value('time_ms_between_flashes'))
             pygame.time.wait(int(1000 * Parameters.get_value('time_pause_after_target')))
@@ -160,16 +168,11 @@ class DecisionMaker:
         for i in range(0, len(flashed_cards_indexes)):
             flashed_cards[self.valid_cards_in_game.index(flashed_cards_indexes[i])] = 1
 
-        exp_log_p = [math.exp(log_p[i] - max_log_p + 1.0) for i in range(self.number_of_cards)]
-        sum_elp = sum(exp_log_p)
-
-        self.pdf = [exp_log_p[i] / sum_elp for i in range(self.number_of_cards)]
-
         for i in flashed_cards_indexes:
             if lf == 'True':
-                self.pdf[self.valid_cards_in_game.index(i)] += 0.4
+                self.pdf[self.valid_cards_in_game.index(i)] += 0.7375
             else:
-                self.pdf[self.valid_cards_in_game.index(i)] -= 0.84
+                self.pdf[self.valid_cards_in_game.index(i)] -= 0.7159
 
     def compute_entropy(self):
         return sum([(-self.pdf[i] * math.log(self.pdf[i], math.e) if self.pdf[i] > 0 else 0)
@@ -179,8 +182,43 @@ class DecisionMaker:
 class Flasher:
     @staticmethod
     def get_calibration_flash_matrix(cards_in_game, num_repetitions,
-                                     n_lines_cards, n_columns_cards, n_cards,
-                                     target_index, p300_ratio=0.3):
+                                     n_lines_cards, n_columns_cards,
+                                     n_cards, target_index, p300_ratio=0.2):
+        flashing_type = FlashingType(Parameters.get_value("flashing_type"))
+        if flashing_type == FlashingType.RIP_RAND:
+            return Flasher._get_riprand_calibration_flash_matrix(
+                cards_in_game, num_repetitions,
+                n_lines_cards, n_columns_cards, n_cards,
+                target_index, p300_ratio)
+        elif flashing_type == FlashingType.ROW_COL:
+            return Flasher._get_row_col_flash_matrix(
+                n_lines_cards, n_columns_cards, num_repetitions)
+        else:
+            raise NotImplemented('Unimplemented flashing type '.format(
+                Parameters.get_value("flashing_type")))
+
+    @staticmethod
+    def _get_row_col_flash_matrix(num_rows, num_cols, num_repetitions):
+        calibration_flash_matrix = []
+        for _ in range(num_repetitions):
+            repetition_flashes = []
+            for i in range(num_rows):  # append row flashes
+                row_flash = range(i * num_cols, (i + 1) * num_cols)
+                repetition_flashes.append(row_flash)
+            for j in range(num_cols):
+                column_flash = []
+                for i in range(num_rows):
+                    column_flash.append(j + i * num_cols)
+                repetition_flashes.append(column_flash)
+            random.shuffle(repetition_flashes)
+            for flash in repetition_flashes:
+                calibration_flash_matrix.append(flash)
+        return calibration_flash_matrix
+
+    @staticmethod
+    def _get_riprand_calibration_flash_matrix(cards_in_game, num_repetitions,
+                                              n_lines_cards, n_columns_cards, n_cards,
+                                              target_index, p300_ratio=0.2):
 
         flash_matrix = Flasher.get_flash_matrix(
             cards_in_game, n_lines_cards, n_columns_cards, n_cards)
@@ -225,13 +263,30 @@ class Flasher:
     @staticmethod
     def get_game_flash_matrix(cards_in_game, num_repetitions,
                               n_lines_cards, n_columns_cards, n_cards):
-        game_flash_matrix = []
-        for _ in range(num_repetitions):
-            flash_matrix = Flasher.get_flash_matrix(
-                cards_in_game, n_lines_cards, n_columns_cards, n_cards)
-            for row in flash_matrix:
-                game_flash_matrix.append(row)
-        return game_flash_matrix
+        flashing_type = FlashingType(Parameters.get_value("flashing_type"))
+        if flashing_type == FlashingType.RIP_RAND:
+            game_flash_matrix = []
+            for _ in range(num_repetitions):
+                flash_matrix = Flasher.get_flash_matrix(
+                    cards_in_game, n_lines_cards, n_columns_cards, n_cards)
+                for row in flash_matrix:
+                    game_flash_matrix.append(row)
+            return game_flash_matrix
+        elif flashing_type == FlashingType.ROW_COL:
+            flash_matrix = Flasher._get_row_col_flash_matrix(n_lines_cards,
+                                                             n_columns_cards,
+                                                             num_repetitions)
+            new_flash_matrix = []
+            for flash in flash_matrix:
+                new_flash = []
+                for index in flash:
+                    if index in cards_in_game:
+                        new_flash.append(index)
+                new_flash_matrix.append(new_flash)
+            return new_flash_matrix
+        else:
+            raise NotImplemented('Unimplemented flashing type '.format(
+                Parameters.get_value("flashing_type")))
 
     @staticmethod
     def get_flash_matrix(cards_in_game, n_lines_cards, n_columns_cards, n_cards):
@@ -355,8 +410,11 @@ class Flasher:
         return a
 
 
-# --------------------------------------------
-# --------------------------------------------
+class FlashingType(Enum):
+    ROW_COL = 1
+    RIP_RAND = 2
+
+
 class P300PipelineCommunication:
     def __init__(self, ip='127.0.0.1', port_pub='5556', port_sub='6666'):
         self.context = zmq.Context()
@@ -434,6 +492,9 @@ class Game:
         pass
 
     def play_turn(self, index):
+        if Parameters.return_to_menu:
+            Parameters.return_to_menu = False
+            return
         self.ui.turn_card(self.cards[index], index)
         image = self.cards[index]
         if (self.first_card_index is None) or (index == self.first_card_index):
@@ -476,6 +537,8 @@ class Game:
         self.ui.print_sidebar_message()
 
         while any(self.cards):
+            if Parameters.return_to_menu:
+                return
             if self.player1_turn:
                 index = self.player1.get_play(self.first_card_index, self.cards_in_game)
             else:
@@ -493,11 +556,14 @@ class Game:
 
 
 class Parameters:
+    return_to_menu = False
+
     # ---------------------- UI ----------------------
     # ui radio_buttons options
     table_dimensions_options = [('8', 1), ('12', 2), ('16', 3), ('20', 4), ('24', 5), ('30', 6)]
     theme_options = [('Asterix et Obelix', 1), ('Colors', 2), ('Disney', 3)]
     player_type_options = [('AI', 1), ('EEG headset', 2), ('Mouse', 3)]
+    flashing_type_options = [('row / column', 1), ('rip rand', 2)]
     player_type = ['ai', 'brain', 'mouse']
 
     # cards
@@ -596,16 +662,17 @@ class Player:
                 return self.ai.play_second_card(cards_in_game)
         elif self.type == 'brain':
             if is_first_card:
-                valid_cards_in_game = cards_in_game
+                valid_cards_in_game = cards_in_game[:]
                 n_cards = len(cards_in_game)
             else:
                 valid_cards_in_game = cards_in_game[:]
                 valid_cards_in_game.remove(first_card_index)
                 n_cards = len(cards_in_game)-1
-            print 'first_card_index = ' + str(first_card_index)
-            print 'cards_in_game = ' + str(cards_in_game)
-            print 'valid cards = ' + str(valid_cards_in_game)
-            print 'ncards = ' + str(n_cards)
+            print 'on Player.get_play, valid_cards_in_game = {}'.format(valid_cards_in_game)
+            # print 'first_card_index = ' + str(first_card_index)
+            # print 'cards_in_game = ' + str(cards_in_game)
+            # print 'valid cards = ' + str(valid_cards_in_game)
+            # print 'ncards = ' + str(n_cards)
             # pygame.time.wait(int(1000 * Parameters.get_value('time_thinking')))
             self.ui.draw_clock('\n Get ready!', int(1000 * Parameters.get_value('time_thinking')))
             flash_matrix = Flasher.get_game_flash_matrix(
@@ -625,7 +692,7 @@ class Player:
             print('Player.get_play, decision = ' + str(decision))
             pygame.time.wait(int(1000 * Parameters.get_value('time_before_result')))
             return valid_cards_in_game[decision]
-        else:
+        else:  # self.type == 'mouse'
             if is_first_card:
                 self.last_card_click = None
             while self.last_card_click is None:

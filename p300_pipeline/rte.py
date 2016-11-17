@@ -1,5 +1,7 @@
-"""Real Time Electroencephalography module for dealing with real time
-signal acquisition, calibration and online BCI."""
+"""
+Real Time Electroencephalography module for dealing with real time
+signal acquisition, calibration and online BCI.
+"""
 
 import datetime
 import numpy
@@ -127,7 +129,7 @@ class RealTimeElectroencephalography(QtCore.QObject):
             stream=self.bandpass_filter.out_stream,
             stack_size=1,
             left_sweep=0.,
-            right_sweep=0.875)
+            right_sweep=0.7)
         self.epocher.new_chunk.connect(self.on_new_epoch)
 
     @QtCore.pyqtSlot(int)

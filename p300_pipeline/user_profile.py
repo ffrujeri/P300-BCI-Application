@@ -41,6 +41,8 @@ class UserProfile:
         self.num_epochs = 0
 
         self.accuracy = -1
+        self.precision = -1
+        self.recall = -1
         self.target_mean = self.non_target_mean = 0
         self.target_variance = self.non_target_variance = 0
         self.true_positives = self.false_positives = 0
@@ -73,12 +75,12 @@ class UserProfile:
                             UserProfile.PARAMS_FILENAME)
 
     def compute_profile(self, profile_filename,
-                        classifier_type=ClassifierType.bernoulliNB,
-                        epoch_duration=0.875,
-                        test_size=0.1,
+                        classifier_types=(ClassifierType.bernoulliNB, ClassifierType.gaussianNB, ClassifierType.lda),
+                        epoch_duration=0.7,
+                        test_size=0.3,
                         num_filters=None,
-                        equal_labels_ratio=False):  # TODO
-        self.classifier_type = classifier_type
+                        equal_labels_ratio=True,
+                        num_trials=3):  # TODO
         self.epoch_duration = epoch_duration
 
         # read raw data (raw signal and triggers)
@@ -97,39 +99,62 @@ class UserProfile:
         self.compute_means_and_variances(eeg_signal, triggers)
 
         # select optimal number of filters and model
-        self.accuracy = -1
+        current_best = 0
         if num_filters:
             min_filters = num_filters
             max_filters = num_filters + 1
         else:
             min_filters = 1
             max_filters = SpatialFilters.MAX_NUM_FILTERS + 1
-        for num_filters in range(min_filters, max_filters):
-            concatenated_epochs = SpatialFilters.concatenate_channels(
-                eeg_signal.epoched_signals[:num_filters])
-            X = concatenated_epochs
-            y = eeg_signal.triggers.labels
-            X_train, X_test, y_train, y_test = \
-                train_test_split(X, y, test_size=test_size, random_state=1)
-            if equal_labels_ratio:
-                X_train, y_train = self.truncate(X_train, y_train)
-                X_test, y_test = self.truncate(X_test, y_test)
-            clf = self.compute_classifier(classifier_type, X_train, y_train)
-            accuracy = clf.score(X_test, y_test)
+        for classifier_type in classifier_types:
+            for num_filters in range(min_filters, max_filters):
+                true_positives = false_positives = 0
+                true_negatives = false_negatives = 0
+                accuracy = []
+                for _ in range(num_trials):
+                    concatenated_epochs = SpatialFilters.concatenate_channels(
+                        eeg_signal.epoched_signals[:num_filters])
+                    X = concatenated_epochs
+                    y = eeg_signal.triggers.labels
+                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+                    if equal_labels_ratio:
+                        X_train, y_train = self.truncate(X_train, y_train)
+                        X_test, y_test = self.truncate(X_test, y_test)
 
-            y_pred = clf.predict(X_test)
-            self.true_positives = sum([y_test[i] == y_pred[i] and y_test[i]
-                                       for i in range(len(y_test))])
-            self.true_negatives = sum([y_test[i] == y_pred[i] and not y_test[i]
-                                       for i in range(len(y_test))])
-            self.false_positives = sum([y_test[i] != y_pred[i] and y_pred[i]
-                                       for i in range(len(y_test))])
-            self.false_negatives = sum([y_test[i] != y_pred[i] and not y_pred[i]
-                                       for i in range(len(y_test))])
-            if accuracy > self.accuracy:
-                self.accuracy = accuracy
-                self.optimal_num_filters = num_filters
-                self.classifier = clf
+                    clf = self.compute_classifier(classifier_type, X_train, y_train)
+                    accuracy.append(clf.score(X_test, y_test))
+
+                    y_pred = clf.predict(X_test)
+                    true_positives += sum([y_test[i] == y_pred[i] and y_test[i]
+                                          for i in range(len(y_test))])
+                    true_negatives += sum([y_test[i] == y_pred[i] and not y_test[i]
+                                          for i in range(len(y_test))])
+                    false_positives += sum([y_test[i] != y_pred[i] and y_pred[i]
+                                           for i in range(len(y_test))])
+                    false_negatives += sum([y_test[i] != y_pred[i] and not y_pred[i]
+                                           for i in range(len(y_test))])
+
+                accuracy = 1. * sum(accuracy) / len(accuracy)
+                precision = 1. * true_positives / (true_positives + false_positives)
+                recall = 1. * true_positives / (true_positives + false_negatives)
+                current = precision * recall
+                if current > current_best:
+                    current_best = current
+                    self.accuracy = accuracy
+                    self.precision = precision
+                    self.recall = recall
+                    self.optimal_num_filters = num_filters
+                    self.classifier_type = classifier_type
+                    self.true_positives = true_positives
+                    self.true_negatives = true_negatives
+                    self.false_positives = false_positives
+                    self.false_negatives = false_negatives
+
+        concatenated_epochs = SpatialFilters.concatenate_channels(
+            eeg_signal.epoched_signals[:self.optimal_num_filters])
+        X = concatenated_epochs
+        y = eeg_signal.triggers.labels
+        self.classifier = self.compute_classifier(self.classifier_type, X, y)
 
         self.save_profile_params_file(profile_filename)
 
@@ -175,9 +200,7 @@ class UserProfile:
         elif classifier_type == ClassifierType.rf:
             return RandomForestClassifier(n_estimators=2).fit(X_train, y_train)
         elif classifier_type == ClassifierType.mlp:
-            return MLPClassifier(solver='lbfgs', alpha=1e-5,
-                                 hidden_layer_sizes=(10, 5),
-                                 random_state=1).fit(X_train, y_train)
+            return MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(10, 5), random_state=1).fit(X_train, y_train)
         else:
             warnings.warn('Invalid classifier type. Using default.')
             return svm.SVC(kernel='linear').fit(X_train, y_train)
@@ -203,8 +226,16 @@ class UserProfile:
 
     def print_model_info(self):
         cprint('model params', 'yellow', attrs=['bold'])
+        cprint('> classifier used: {}'.format(self.classifier_type), 'yellow')
         cprint('> accuracy = {:.2f}'.format(self.accuracy * 100), 'yellow')
         cprint('> num_filters = {}'.format(self.optimal_num_filters), 'yellow')
+        cprint('> precision = {}'.format(self.precision), 'yellow')
+        cprint('> P(p300 | label = p300) = recall = {}'.format(
+            1. * self.true_positives / (self.true_positives + self.false_positives)),
+            'yellow')
+        cprint('> P(not p300 | label = not p300) = {}'.format(
+            1. * self.true_negatives / (self.true_negatives + self.false_negatives)),
+            'yellow')
 
     def compute_likelihoods(self, epoch):  # TODO: check
         spatial_filters = self.spatial_filters.transpose()[:self.optimal_num_filters, :]

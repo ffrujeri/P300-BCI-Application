@@ -3,6 +3,8 @@ from PIL import Image, ImageTk
 import pygame
 import tkFont
 from Model import Parameters
+from PyQt4 import QtGui
+import tkSimpleDialog
 
 
 class UserInterface:
@@ -86,6 +88,7 @@ class UserInterface:
                         value=val).pack(side=LEFT)
         radiogroup.place(x=x1, y=y0)
 
+
     def add_scale(self, x0, y0, from0, to0, interval0, set0, var_name):
         Parameters.values[var_name] = Scale(self.root, from_=from0, to=to0, resolution=interval0, orient=HORIZONTAL)
         Parameters.values[var_name].set(set0)
@@ -120,12 +123,10 @@ class UserInterface:
         self.background_label = Label(self.root, image=self.background_image)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-    # ---------------------- // ----------------------
-    # ---------------------- screens ----------------------
     def draw_calibration_screen(self, n_lines, n_columns):
         self.clear_screen()
         self.set_background_image("img/background_calibration.gif")
-        self.add_button_smaller(self.width * 8 / 10, self.height * 1 / 20, "Menu", self.draw_initial_screen)
+        self.add_button_smaller(self.width * 8 / 10, self.height * 1 / 20, "Menu", self.return_to_menu)
 
         self.n_lines = n_lines
         self.n_columns = n_columns
@@ -137,6 +138,11 @@ class UserInterface:
 
         self.draw_hidden_cards()
         self.draw_game_sidebar()
+
+    def return_to_menu(self):
+        Parameters.return_to_menu = True
+        pygame.time.wait(1000)
+        self.draw_initial_screen()
 
     def draw_game_options_screen(self):
         self.clear_screen()
@@ -163,7 +169,9 @@ class UserInterface:
     def define_game(self, game):
         self.game = game
 
-    def kill_game(self):
+    def kill_game(self):  # FIXME
+        Parameters.return_to_menu = True
+        pygame.time.wait(1000)
         self.game.kill()
         pygame.time.wait(1500)
         self.draw_initial_screen()
@@ -200,7 +208,12 @@ class UserInterface:
         self.set_background_image("img/background_settings.gif")
         self.add_button_smaller(self.width * 8 / 10, self.height * 1 / 20, "Menu", self.controller.settings_update)
 
-        # Jeu
+        # Game
+        options = Parameters.flashing_type_options
+        self.add_radio_buttons(options, self.width / 14, self.width * 3 / 7,
+                               self.height * 4 / 20, "Flashing type",
+                               None, "flashing_type")
+
         self.add_label(self.width / 14, self.height * 6 / 20, "Flash duration (ms)")
         set0 = Parameters.get_value("time_ms_flash")
         self.add_scale(self.width * 3 / 7, self.height * 6 / 20, 40, 150, 5, set0, "time_ms_flash")
@@ -211,7 +224,7 @@ class UserInterface:
 
         self.add_label(self.width / 14, self.height * 10 / 20, "Number of flash series")
         set0 = Parameters.get_value("n_repetitions")
-        self.add_scale(self.width * 3 / 7, self.height * 10 / 20, 2, 5, 1, set0, "n_repetitions")
+        self.add_scale(self.width * 3 / 7, self.height * 10 / 20, 1, 10, 1, set0, "n_repetitions")
 
         self.add_label(self.width / 14, self.height * 12 / 20, "Thinking time before flashes (s)")
         set0 = Parameters.get_value("time_thinking")
@@ -332,3 +345,15 @@ class UserInterface:
                                  "     Player 1      (" + self.player1_type + "): " + str(player1_points) + "  ")
             self.add_label_small_selected(self.width / 40, self.height * 4 / 20,
                                  ">> Player 2 << (" + self.player2_type + "): " + str(player2_points) + "  ")
+
+    def draw_dialog(self):
+        SimpleDialog(self.root)
+
+
+class SimpleDialog(tkSimpleDialog.Dialog):
+
+    def body(self, parent, text='press ok button below'):
+        Label(parent, text=text).grid(row=0)
+
+    def apply(self):
+        pass
