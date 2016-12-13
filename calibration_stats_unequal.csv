@@ -1,0 +1,8 @@
+profile_filename,helmet_positioning,num_epochs,classifier,computing_time,epoch_duration,epoch_size,num_filters,test_size,accuracy,targets,non_targets,TP,FP,TN,FN,(TP/(TP+FP),TN/(TN+FN),TP/(TP+FN),TN/(TN+FP)
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.18588209152,0.6,76,1,0.2,0.734513274336,60,166,0,0,166,60,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.22827601433,0.6,76,2,0.2,0.734513274336,60,166,0,0,166,60,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.25303006172,0.6,76,3,0.2,0.734513274336,60,166,0,0,166,60,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.30199599266,0.6,76,4,0.2,0.734513274336,60,166,0,0,166,60,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.09306907654,0.6,76,1,0.3,0.734513274336,90,249,0,0,249,90,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.05956411362,0.6,76,2,0.3,0.734513274336,90,249,0,0,249,90,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.2197458744,0.6,76,3,0.3,0.734513274336,90,249,0,0,249,90,nan,73,0,100

@@ -1,0 +1,3 @@
+profile_filename,helmet_positioning,num_epochs,classifier,computing_time,epoch_duration,epoch_size,num_filters,test_size,accuracy,targets,non_targets,TP,FP,TN,FN,(TP/(TP+FP),TN/(TN+FN),TP/(TP+FN),TN/(TN+FP)
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.05910205841,0.6,76,1,0.2,0.734513274336,60,166,0,0,166,60,nan,73,0,100
+felipevieirafrujeri_2016_11_13_11_04,normal,1127,ClassifierType.svm,1.04548120499,0.6,76,2,0.2,0.734513274336,60,166,0,0,166,60,nan,73,0,100
