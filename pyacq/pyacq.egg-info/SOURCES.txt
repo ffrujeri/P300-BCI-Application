@@ -1,9 +1,0 @@
-README.rst
-setup.py
-pyacq/__init__.py
-pyacq/version.py
-pyacq.egg-info/PKG-INFO
-pyacq.egg-info/SOURCES.txt
-pyacq.egg-info/dependency_links.txt
-pyacq.egg-info/requires.txt
-pyacq.egg-info/top_level.txt
